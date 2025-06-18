@@ -1,0 +1,60 @@
+--create a join table
+SELECT * 
+FROM dbo.absenteeism_at_work a
+LEFT JOIN dbo.compensation b
+ON a."ID" = b."ID"
+LEFT JOIN dbo.reasons r 
+ON a."Reason for absence"= r."Number";
+
+---find the healthiest employees for bonus
+SELECT * 
+FROM dbo.absenteeism_at_work a
+WHERE a."Social drinker" = 0 
+  AND a."Social smoker" = 0
+  AND a."Body mass index" < 25
+  AND a."Absenteeism time in hours" < (
+      SELECT AVG("Absenteeism time in hours") 
+      FROM dbo.absenteeism_at_work
+  );
+
+---compensation rate increase for non-smokers 
+SELECT count(*) AS Nonsmokers 
+FROM dbo.absenteeism_at_work
+WHERE "Social smoker" = 0;
+
+---optimizing this query
+SELECT
+a."ID", r."Reason", a."Body mass index",
+CASE WHEN a."Body mass index" <18.5 THEN 'UnderWeight'
+     WHEN a."Body mass index" BETWEEN 18.5 and 25 THEN 'Healthy'
+     WHEN a."Body mass index" BETWEEN 25 and 30 THEN 'OverWeight'
+     WHEN a."Body mass index" >18.5 THEN 'Obese'
+     ELSE 'Unknown' END as "BMI_Category",
+CASE WHEN a."Month of absence" IN (12,1,2) THEN 'Winter'
+     WHEN a."Month of absence" IN (3,4,5) THEN 'Spring'
+     WHEN a."Month of absence" IN (6,7,8) THEN 'Summer'
+     WHEN a."Month of absence" IN (9,10,11) THEN 'Fall'
+     ELSE 'Unknown' END as "Seasons",
+a."Month of absence",
+a."Day of the week",
+a."Transportation expense",
+a."Distance from Residence to Work",
+a."Service time",
+a."Age",
+a."Workload Average/day",
+a."Hit target",
+a."Disciplinary failure",
+a."Education",
+a."Son",
+a."Social drinker",
+a."Social smoker",
+a."Pet",
+a."Weight",
+a."Height",
+a."Body mass index",
+a."Absenteeism time in hours"
+FROM dbo.absenteeism_at_work a
+LEFT JOIN dbo.compensation b
+ON a."ID" = b."ID"
+LEFT JOIN dbo.reasons r 
+ON a."Reason for absence"= r."Number";
